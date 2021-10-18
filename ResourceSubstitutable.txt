@@ -1,0 +1,183 @@
+Model Definition File - 25 character maximum for all text strings
+Model Name= substitutable resource 
+Model Version=	1.0.0
+Model Time Unit= day
+Model Contact= Ed
+Model Contact Address Line 1= Ecosystems
+Model Contact Address Line 2= MBL
+Model Contact Address Line 3= Woods Hole
+
+States
+Name, Units, Symbol, Num array elements if applicable - Comma separated.
+Plant C, g C m-2, BC
+Plant N, g N m-2, BN
+Avail N 1, g N m-2, N1
+Avail N 2, g N m-2, N2
+Avail N 3, g N m-2, N3
+Avail N 4, g N m-2, N4
+Effort C, effort, VC
+Effort N, effort, VN
+sub effort 1, effort, v1
+sub effort 2, effort, v2
+sub effort 3, effort, v3
+sub effort 4, effort, v4
+Int up C, g C m-2 day-1, UCbar
+Int up N, g N m-2 day-1, UNbar
+Int rec C, g C m-2 day-1, RCbar
+Int rec N, g N m-2 day-1, RNbar
+End
+
+Process
+Process Name, Units, Symbol, Num of Parameters, Num array elements if applicable
+Parameters for each process: Name, Units, Symbol
+Photosynthesis, g C m-2 day-1, UC, 4
+	max Ps, g C m-2 day-1, Pmax
+	half sat, MJ m-2 day-1, eta
+	beers coef, m2 m-2, kI
+	spec leaf area, m-2 g-1 C, lambda
+Total N up, g N m-2 day-1, UN, 0
+N up 1, g N m-2 day-1, UN1, 2
+	N up rate 1, g N g-1 C day-1, gN1
+	half sat 1, g N m-2, kN1
+N up 2, g N m-2 day-1, UN2, 2
+	N up rate 2, g N g-1 C day-1, gN2
+	half sat 2, g N m-2, kN2
+N up 3, g N m-2 day-1, UN3, 2
+	N up rate 3, g N g-1 C day-1, gN3
+	half sat 3, g N m-2, kN3
+N up 4, g N m-2 day-1, UN4, 2
+	N up rate 4, g N g-1 C day-1, gN4
+	half sat 4, g N m-2, kN4
+Respiration, g C m-2 day-1, RC, 1
+	resp rate const, day-1, rmC
+C turnover, g C m-2 day-1, TC, 1
+	C turnover rate const, day-1, mC
+N turnover, g N m-2 day-1, TN, 1
+	N turnover rate const, day-1, mN
+PHI, none, PHI, 4
+	acclim rate, day-1, a
+	sub acclim rate, day-1, omega
+	eps0, none,eps0
+	int const, day-1, rho
+psiC, g C m-2 day-1, psiC, 0
+psiN, g N m-2 day-1, psiN, 0
+allometry, g C m-2, S, 2
+	alpha, m2 g-1 C, alpha
+	gamma, m2 g-1 C, gamma
+stoichiometry, none, THETA, 1
+	opt C:N, g C g-1 N, qB
+max yield, g N m-2 effort-1 day-1, ymax, 0
+beta, none, beta, 0
+eps1, effort, eps1, 0
+eps2, effort, eps2, 0
+eps3, effort, eps3, 0
+eps4, effort, eps4, 0
+N leach 1, g N m-2 day-1, LN1, 1
+	loss rate cosnt1, day-1, tau1
+N leach 2, g N m-2 day-1, LN2, 1
+	loss rate cosnt2, day-1, tau2
+N leach 3, g N m-2 day-1, LN3, 1
+	loss rate cosnt3, day-1, tau3
+N leach 4, g N m-2 day-1, LN4, 1
+	loss rate cosnt4, day-1, tau4
+yeild 1, g N m-2 effort-1 day-1, y1, 1
+	cost 1, g c g-1 N, phi1
+yeild 2, g N m-2 effort-1 day-1, y2, 1
+	cost 2, g c g-1 N, phi2
+yeild 3, g N m-2 effort-1 day-1, y3, 1
+	cost 3, g c g-1 N, phi3
+yeild 4, g N m-2 effort-1 day-1, y4, 1
+	cost 4, g c g-1 N, phi4
+dUCdVC, g C m-2 day-1 effort-1, dUCdVC, 0
+End
+
+Drive
+Name, Units, Symbol, Num array elements - Comma separated.
+irradiance, MJ m-2 day-1, I
+N input 1, g N m-2 day-1, IN1
+N input 2, g N m-2 day-1, IN2
+N input 3, g N m-2 day-1, IN3
+N input 4, g N m-2 day-1, IN4
+End
+
+Other Double Variables
+Name, Units, Symbol - Comma separated.
+End
+
+Other Integer Variables
+Name, Units, Symbol - Comma separated.
+End
+
+Functions
+End Functions
+
+Equations – See the Computer Programming handout for instructions on writing equations in Pascal. Semicolons must end each statement.
+if VC<1e-20 then VC:=0;
+if VN<1e-20 then VN:=0;
+if v1<1e-20 then v1:=0;
+if v2<1e-20 then v2:=0;
+if v3<1e-20 then v3:=0;
+if v4<1e-20 then v4:=0;
+S:=VC+VN;
+VC:=VC/S;
+VN:=1-VC;
+S:=v1+v2+v3+v4;
+v1:=v1/S;
+v2:=v2/S;
+v3:=v3/S;
+V4:=1-v1-v2-v3; 
+
+S:=BC*((alpha*BC+1)/(gamma*BC+1));
+THETA:=BC/qB/BN;
+UC:=(Pmax/kI)*ln((eta+I)/(eta+I*exp(-kI*lambda*S*VC)));
+UN1:=S*gN1*N1*VN*v1/(kN1+N1);
+UN2:=S*gN2*N2*VN*v2/(kN2+N2);
+UN3:=S*gN3*N3*VN*v3/(kN3+N3);
+UN4:=S*gN4*N4*VN*v4/(kN4+N4);
+UN:=UN1+UN2+UN3+UN4;
+RC:=rmC*THETA*BC+phi1*UN1+phi2*UN2+phi3*UN3+phi4*UN4;
+TC:=mC*BC;
+TN:=mN*BN/THETA;
+PHI:=power(UCbar/RCbar,VC)*power(UNbar/RNbar,VN);
+psiC:=((rmC+mC)*BC+phi1*UN1+phi2*UN2+phi3*UN3+phi4*UN4)/THETA;
+psiN:=mN*THETA*BN;
+LN1:=tau1*N1;
+LN2:=tau2*N2;
+LN3:=tau3*N3;
+LN4:=tau4*N4;
+dUCdVC:=lambda*S*Pmax*I*exp(-kI*lambda*S*VC)/(eta+I*exp(-kI*lambda*S*VC)); 
+y1:=S*gN1*N1*VN/(kN1+N1);
+y1:=y1/(VN+y1*phi1/dUCdVC);
+y2:=S*gN2*N2*VN/(kN2+N2);
+y2:=y2/(VN+y2*phi2/dUCdVC);
+y3:=S*gN3*N3*VN/(kN3+N3);
+y3:=y3/(VN+y3*phi3/dUCdVC);
+y4:=S*gN4*N4*VN/(kN4+N4);
+y4:=y4/(VN+y4*phi4/dUCdVC);
+ymax:=max(y1,max(y2,max(y3,y4)));
+if y1=ymax then eps1:=eps0 else eps1:=0;
+if y2=ymax then eps2:=eps0 else eps2:=0;
+if y3=ymax then eps3:=eps0 else eps3:=0;
+if y4=ymax then eps4:=eps0 else eps4:=0;
+beta:=ymax*(max(v1,eps1)+max(v2,eps2)+max(v3,eps3)+max(v4,eps4));
+beta:=(y1*max(v1,eps1)+y2*max(v2,eps2)+y3*max(v3,eps3)+y4*max(v4,eps4))/beta;
+End Equations
+
+Derivatives – For array variables use jj as the array index. Same order as State var.
+dBCdt := UC-TC-RC;
+dBNdt := UN-TN;
+dN1dt := IN1-UN1-LN1;
+dN2dt := IN2-UN2-LN2;
+dN3dt := IN3-UN3-LN3;
+dN4dt := IN4-UN4-LN4;
+dVCdt := a*ln(PHI*RCbar/UCbar)*VC;
+dVNdt := a*ln(PHI*RNbar/UNbar)*VN;
+dv1dt := omega*(y1/ymax-beta)*max(v1,eps1);
+dv2dt := omega*(y2/ymax-beta)*max(v2,eps2);
+dv3dt := omega*(y3/ymax-beta)*max(v3,eps3);
+dv4dt := omega*(y4/ymax-beta)*max(v4,eps4);
+dUCbardt := rho*(UC-UCbar);
+dUNbardt := rho*(UN-UNbar);
+dRCbardt := rho*(psiC-RCbar);
+dRNbardt := rho*(psiN-RNbar);
+
